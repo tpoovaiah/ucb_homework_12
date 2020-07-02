@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
 });
 
 // connect to the mysql server and sql database
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
   start();
@@ -28,53 +28,46 @@ function start() {
     })
     .then(answer => {
 
-      switch(answer.todo){
+      switch (answer.todo) {
         case "View All Employees":
-            return console.log("You are looking at all employees!")
+          return viewAllEmployees();
         case "View All Employees by Department":
-            return "You are looking at all employees by department!"
+          return console.log("You are looking at all employees by Department!")
         case "View All Employees by Manager":
-            return "You are looking at all employees by department!"
+          return console.log("You are looking at all employees by Manager!")
+        case "Add Employee":
+          return console.log("You are looking at Add Employee!")
+        case "Remove Employee":
+          return console.log("You are looking at Remove Employee!")
+        case "Update Employee Role":
+          return console.log("You are looking at Update Employee Role!")
+        case "Update Employee Manager":
+          return console.log("You are looking at Update Employee Manager!")
+        case "View All Roles":
+          return console.log("You are looking at View All Roles!")
+        case "Add Role":
+          return console.log("You are looking at Add Role!")
+        case "Remove Role":
+          return console.log("You are looking at Remove Role!")
         default:
-            throw "Unknown Employee Type"
-    }
-
-      // if (answer.todo === "View All Employees") {
-      //   console.log("you are looking at all employees!")
-      // }
-      // else if(answer.todo === "View All Employees by Department") {
-      //   console.log("You are looking at all employees by department!")
-      // } 
-      // else if(answer.todo === "View All Employees by Manager") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "Add Employee") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "Remove Employee") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "Update Employee Role") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "Update Employee Manager") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "View All Roles") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "Add Role") {
-      //   bidAuction();
-      // } 
-      // else if(answer.todo === "Remove Role") {
-      //   bidAuction();
-      // } 
-      // else{
-      //   connection.end();
-      // }
-    });
+          throw "Unknown Request"
+      }
+    })
+    .catch(err => {
+      if(err){
+          console.log("Error: ", err);
+      }
+  })
 }
 
+function viewAllEmployees() {
+  connection.query("SELECT * FROM employees", (err, results) => {
+    if (err) throw err;
+    console.table(results)
+    inquirer.prompt
+    //console.log(results)
+  });
+}
 // function to handle posting new items up for auction
 // function postAuction() {
 //   // prompt for info about the item being put up for auction
