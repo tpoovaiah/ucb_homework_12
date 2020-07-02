@@ -1,4 +1,4 @@
-
+DROP DATABASE IF EXISTS employee_tracker_DB;
 CREATE DATABASE employee_tracker_DB;
 
 USE employee_tracker_DB;
@@ -8,7 +8,7 @@ CREATE TABLE employees(
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   role_id INT,
-  manager_id INT,
+  manager_id INT NULL,
   PRIMARY KEY (id)
 );
 

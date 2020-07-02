@@ -13,12 +13,11 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function (err) {
   if (err) throw err;
-  // run the start function after the connection is made to prompt the user
   start();
 });
 
 // function which prompts the user for what action they should take
-function start() {
+const start = () => {
   inquirer
     .prompt({
       name: "todo",
@@ -30,13 +29,13 @@ function start() {
 
       switch (answer.todo) {
         case "View All Employees":
-          return viewAllEmployees();
+          return viewAllEmployees(), rePrompt();
         case "View All Employees by Department":
-          return console.log("You are looking at all employees by Department!")
+          return viewByDepartment();
         case "View All Employees by Manager":
           return console.log("You are looking at all employees by Manager!")
         case "Add Employee":
-          return console.log("You are looking at Add Employee!")
+          return addEmployee();
         case "Remove Employee":
           return console.log("You are looking at Remove Employee!")
         case "Update Employee Role":
@@ -54,20 +53,148 @@ function start() {
       }
     })
     .catch(err => {
-      if(err){
-          console.log("Error: ", err);
+      if (err) {
+        console.log("Error: ", err);
       }
-  })
+    })
 }
 
-function viewAllEmployees() {
+//function to View All Employees
+const viewAllEmployees = () => {
   connection.query("SELECT * FROM employees", (err, results) => {
     if (err) throw err;
     console.table(results)
-    inquirer.prompt
-    //console.log(results)
+    start();
   });
 }
+
+
+//function to view all employees by department
+const viewByDepartment = () => {
+
+  const departmentArray = []
+
+  connection.query("SELECT name FROM department", (err, results) => {
+    if (err) throw err;
+    results.forEach(el => {
+      departmentArray.push(el.name)
+    });
+
+    inquirer
+      .prompt({
+        name: "byDepartment",
+        type: "list",
+        message: "Which department would you like to view?",
+        choices: departmentArray
+      })
+      .then(answer => {
+        let query = "SELECT first_name, last_name FROM employees INNER JOIN role ON (employees.role_id = role.id) INNER JOIN department ON (role.department_id = department.id) WHERE (department.name = ? AND employees.role_id = role.id AND role.department_id = department.id)"
+
+        connection.query(query, [answer.byDepartment], (err, results) => {
+          if (err) throw err;
+          console.table(results)
+          start();
+        });
+      })
+  });
+}
+
+//function to add employees
+const addEmployee = () => {
+
+  const roleArray = []
+  const managerArray = ["No Manager"]
+
+  connection.query("SELECT title FROM role", (err, results) => {
+    if (err) throw err;
+    results.forEach(el => {
+      roleArray.push(el.title)
+    });
+  });
+
+  connection.query("SELECT first_name, last_name FROM employees WHERE (employees.manager_id = 0)", (err, results) => {
+    if (err) throw err;
+    results.forEach(el => {
+      const stringName = el.first_name + " " + el.last_name
+      managerArray.push(stringName)
+
+    });
+
+    inquirer
+      .prompt(
+        [
+          {
+            name: "addFirstName",
+            type: "input",
+            message: "What is the employee's first name?",
+          },
+          {
+            name: "addLastName",
+            type: "input",
+            message: "What is the employee's last name?",
+          },
+          {
+            name: "addRole",
+            type: "list",
+            message: "What is the employee's role?",
+            choices: roleArray
+          },
+          {
+            name: "addManager",
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices: managerArray
+          },
+        ]
+      )
+      .then(answer => {
+
+        const findRoleID = () => {
+          for (let i = 0; i < roleArray.length; i++) {
+            if (answer.addRole === roleArray[i]) {
+              return i + 1
+            }
+          }
+        }
+
+        const managerFirstName = () => {
+          let firstnameArray = answer.addManager.split(' ')[0]
+          console.log("nameArray: "+firstnameArray)
+        }
+
+        const managerLstName = () => {
+          let lastnameArray = answer.addManager.split(' ')[1]
+          console.log("nameArray: "+lastnameArray)
+        }
+
+
+        // connection.query("SELECT id FROM employees WHERE (employees.first_name = ?)")
+
+        // const roleID = findRoleID();
+        // const managerID = findManagerID();
+        // console.log(managerID)
+
+
+        // connection.query(
+        //   "INSERT INTO employees SET ?",
+        //   {
+        //     first_name: answer.addFirstName,
+        //     last_name: answer.addLastName,
+        //     role_id: roleID,
+        //     manager_id: managerID
+        //   },
+        //   function(err) {
+        //     if (err) throw err;
+        //     console.log("Your employee was added successfully!");
+        //     start();
+        //   }
+        // );
+      })
+  })
+}
+
+
+
 // function to handle posting new items up for auction
 // function postAuction() {
 //   // prompt for info about the item being put up for auction
