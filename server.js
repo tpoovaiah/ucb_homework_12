@@ -43,21 +43,29 @@ const start = () => {
         case "View All Employees by Department":
           return viewByDepartment();
         case "View All Employees by Manager":
-          return console.log("You are looking at all employees by Manager!");
+          return console.log(
+            "You are looking at all employees by Manager! Feature coming soon."
+          );
         case "Add Employee":
           return addEmployee();
         case "Remove Employee":
           return removeEmployee();
         case "Update Employee Role":
-          return console.log("You are looking at Update Employee Role!");
+          return console.log(
+            "You are looking at Update Employee Role! Feature coming soon."
+          );
         case "Update Employee Manager":
-          return console.log("You are looking at Update Employee Manager!");
+          return console.log(
+            "You are looking at Update Employee Manager! Feature coming soon."
+          );
         case "View All Roles":
           return viewAllRoles();
         case "Add Role":
-          return console.log("You are looking at Add Role!");
+          return addRole();
         case "Remove Role":
-          return console.log("You are looking at Remove Role!");
+          return console.log(
+            "You are looking at Remove Role! Feature coming soon."
+          );
         default:
           throw "Unknown Request";
       }
@@ -80,7 +88,7 @@ const viewAllEmployees = () => {
 
 //function to view all employees by department
 const viewByDepartment = () => {
-  const departmentArray = [];
+  let departmentArray = [];
 
   connection.query("SELECT name FROM department", (err, results) => {
     if (err) throw err;
@@ -260,10 +268,72 @@ const removeEmployee = () => {
   );
 };
 
+//function to view all roles
 const viewAllRoles = () => {
-  
-}
+  connection.query("SELECT * FROM role", (err, results) => {
+    if (err) throw err;
+    console.table(results);
+    start();
+  });
+};
 
+//function to add a role
+const addRole = () => {
+
+  let departmentArray = [];
+
+  connection.query("SELECT name FROM department", (err, results) => {
+    if (err) throw err;
+    results.forEach((el) => {
+      departmentArray.push(el.name);
+    });
+  });
+
+  inquirer
+    .prompt([
+      {
+        name: "roleName",
+        type: "input",
+        message: "Please input the name of the role you would like to add:",
+      },
+      {
+        name: "roleSalary",
+        type: "input",
+        message: "Please enter a number for the salary of this role",
+      },
+      {
+        name: "addDepartment",
+        type: "list",
+        message: "Please choose a department for this role",
+        choices: departmentArray
+      },
+    ])
+    .then((answer) => {
+
+      const findDepartmentID = () => {
+        for (let i = 0; i < departmentArray.length; i++) {
+          if (answer.addDepartment === departmentArray[i]) {
+            return i + 1;
+          }
+        }
+      };
+      let roleID = findDepartmentID();
+      
+      connection.query(
+        "INSERT INTO role SET ?",
+        {
+          title: answer.roleName,
+          salary: answer.roleSalary,
+          department_id: roleID
+        },
+        function (err) {
+          if (err) throw err;
+          console.log("New role was added successfully!");
+          start();
+        }
+      );
+    });
+};
 
 // function to handle posting new items up for auction
 // function postAuction() {
