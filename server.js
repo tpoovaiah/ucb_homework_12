@@ -47,13 +47,13 @@ const start = () => {
         case "Add Employee":
           return addEmployee();
         case "Remove Employee":
-          return console.log("You are looking at Remove Employee!");
+          return removeEmployee();
         case "Update Employee Role":
           return console.log("You are looking at Update Employee Role!");
         case "Update Employee Manager":
           return console.log("You are looking at Update Employee Manager!");
         case "View All Roles":
-          return console.log("You are looking at View All Roles!");
+          return viewAllRoles();
         case "Add Role":
           return console.log("You are looking at Add Role!");
         case "Remove Role":
@@ -218,6 +218,52 @@ const addEmployee = () => {
     }
   );
 };
+
+// function to remove employees
+const removeEmployee = () => {
+  connection.query(
+    "SELECT first_name, last_name FROM employees",
+    (err, results) => {
+      if (err) throw err;
+      employeeArray = [];
+      results.forEach((el) => {
+        const stringName = el.first_name + " " + el.last_name;
+        employeeArray.push(stringName);
+      });
+      console.log("All Employees: " + employeeArray);
+
+      inquirer
+        .prompt({
+          name: "chooseEmployee",
+          type: "list",
+          message: "Which employee would you like to remove?",
+          choices: employeeArray,
+        })
+        .then((answer) => {
+          const employeeFirstName = answer.chooseEmployee.split(" ")[0];
+          const employeeLastName = answer.chooseEmployee.split(" ")[1];
+
+          let query =
+            "DELETE FROM employees WHERE (employees.first_name = ? AND employees.last_name = ?)";
+
+          connection.query(
+            query,
+            [employeeFirstName, employeeLastName],
+            (err, results) => {
+              if (err) throw err;
+              console.log("Employee successfully removed!");
+              start();
+            }
+          );
+        });
+    }
+  );
+};
+
+const viewAllRoles = () => {
+  
+}
+
 
 // function to handle posting new items up for auction
 // function postAuction() {
