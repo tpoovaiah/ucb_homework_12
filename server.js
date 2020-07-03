@@ -43,9 +43,7 @@ const start = () => {
         case "View All Employees by Department":
           return viewByDepartment();
         case "View All Employees by Manager":
-          return console.log(
-            "You are looking at all employees by Manager! Feature coming soon."
-          );
+          return viewByManager();
         case "Add Employee":
           return addEmployee();
         case "Remove Employee":
@@ -333,9 +331,7 @@ const addRole = () => {
 
 //function to remove a role
 const removeRole = () => {
-
   connection.query("SELECT title FROM role", (err, results) => {
-
     if (err) throw err;
     let roleArray = [];
     results.forEach((el) => {
@@ -343,21 +339,72 @@ const removeRole = () => {
     });
 
     inquirer
-    .prompt({
-      name: "chooseRole",
-      type: "list",
-      message: "Which role would you like to remove?",
-      choices: roleArray
-    })
-    .then((answer) => {
-      let query = "DELETE FROM role WHERE (role.title = ?)";
+      .prompt({
+        name: "chooseRole",
+        type: "list",
+        message: "Which role would you like to remove?",
+        choices: roleArray,
+      })
+      .then((answer) => {
+        let query = "DELETE FROM role WHERE (role.title = ?)";
 
-      connection.query(query, [answer.chooseRole], (err, results) => {
-        if (err) throw err;
-        console.log("Role successfully removed!");
-        start();
+        connection.query(query, [answer.chooseRole], (err, results) => {
+          if (err) throw err;
+          console.log("Role successfully removed!");
+          start();
+        });
       });
-    });
-  })
+  });
 };
 
+//function to view all employees by manager
+const viewByManager = () => {
+  let managerArray = [];
+
+  connection.query(
+    "SELECT first_name, last_name FROM employees WHERE (employees.manager_id = 0)",
+    (err, results) => {
+      if (err) throw err;
+      results.forEach((el) => {
+        const stringName = el.first_name + " " + el.last_name;
+        managerArray.push(stringName);
+      });
+
+      inquirer
+        .prompt({
+          name: "byManager",
+          type: "list",
+          message: "Which manager's employees would you like to view?",
+          choices: managerArray,
+        })
+        .then((answer) => {
+          const managerFirstName = answer.byManager.split(" ")[0];
+          const managerLastName = answer.byManager.split(" ")[1];
+
+          let query =
+            "SELECT id FROM employees WHERE (employees.first_name = ? AND employees.last_name = ?)";
+
+          connection.query(
+            query,
+            [managerFirstName, managerLastName],
+            (err, results) => {
+              if (err) throw err;
+
+              const managerID = results[0].id;
+              //console.log("ManagerID: " + managerID);
+
+              connection.query(
+                "SELECT * FROM employees WHERE employees.manager_id=?",
+                [managerID],
+                (err, results) => {
+                  if (err) throw err;
+                  console.table(results);
+                  start();
+                }
+              );
+            }
+          );
+        });
+    }
+  );
+};
