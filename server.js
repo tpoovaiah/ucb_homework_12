@@ -50,7 +50,7 @@ const start = () => {
           return removeEmployee();
         case "Update Employee Role":
           return console.log(
-            "You are looking at Update Employee Role! Feature coming soon."
+            "You are looking at Update Employee Role! Feature coming soon." 
           );
         case "Update Employee Manager":
           return console.log(
