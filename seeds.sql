@@ -7,6 +7,6 @@ VALUES ("Tanya", "Poovaiah", 1, 0), ("Lee", "Yek", 4, 0), ("Tu", "Vo", 2, 1), ("
 
 INSERT INTO role (title, salary, department_id)
 VALUES ("Lead Animator", 100000, 1),("Animator", 60000, 1), ("DP", 80000, 2), ("Technical Director", 100000, 2), ("Editor", 80000, 3), ("Post FX", 90000, 3);
-
+=
 INSERT INTO department (name)
 VALUES ("Animation"), ("Lighting"), ("Editing");
